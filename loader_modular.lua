@@ -22,44 +22,32 @@ local function attemptLoad(name, url, description)
     end
 end
 
--- Priority loading methods for modular system
+-- Focused modular loading - ONLY modular system
 local loadingMethods = {
     {
         name = "Modular Main",
         url = "https://raw.githubusercontent.com/yohansevta/itu_ikan/main/src/main_modular.lua",
         description = "Full modular system dengan semua modules dari fishit.lua"
-    },
-    {
-        name = "Fallback Complete",  
-        url = "https://raw.githubusercontent.com/yohansevta/itu_ikan/main/complete.lua",
-        description = "Complete standalone version sebagai fallback"
-    },
-    {
-        name = "Original Simple",
-        url = "https://raw.githubusercontent.com/yohansevta/itu_ikan/main/simple.lua", 
-        description = "Simple version sebagai backup"
     }
 }
 
--- Try each loading method until one succeeds
+-- Try to load modular system only
 local loaded = false
 local loadedScript = nil
 
-for i, method in ipairs(loadingMethods) do
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("📥 Method " .. i .. ": " .. method.name)
-    
-    local success, result = attemptLoad(method.name, method.url, method.description)
-    
-    if success then
-        loaded = true
-        loadedScript = result
-        print("🎉 Successfully loaded: " .. method.name)
-        break
-    else
-        print("⚠️ Method " .. i .. " failed, trying next...")
-        wait(1)
-    end
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("📥 Loading: Modular Main System")
+
+local success, result = attemptLoad("Modular Main", 
+    "https://raw.githubusercontent.com/yohansevta/itu_ikan/main/src/main_modular.lua",
+    "Full modular system dengan semua modules dari fishit.lua")
+
+if success then
+    loaded = true
+    loadedScript = result
+    print("🎉 Successfully loaded: Modular System!")
+else
+    print("❌ Failed to load modular system")
 end
 
 print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -96,16 +84,15 @@ else
     print("❌ ========================================")
     print("   ITU IKAN MODULAR LOADER FAILED!")
     print("========================================")
-    print("🚨 Error: Tidak bisa load script apapun")
+    print("🚨 Error: Tidak bisa load modular system")
     print("📡 Check: Koneksi internet dan GitHub access")
     print("🔄 Solution: Coba lagi dalam beberapa saat")
     print("")
-    print("🆘 ALTERNATIVE LOADING:")
-    print("Manual Complete:")
-    print('loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/complete.lua"))()')
+    print("🆘 MANUAL LOADING MODULAR SYSTEM:")
+    print("loadstring(game:HttpGet('https://raw.githubusercontent.com/yohansevta/itu_ikan/main/src/main_modular.lua'))()")
     print("")
-    print("Manual Simple:")
-    print('loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/simple.lua"))()')
+    print("📁 Focus: ONLY MODULAR SYSTEM - No fallbacks")
+    print("🎯 Reason: Dedicated modular experience only")
 end
 
 return loadedScript
