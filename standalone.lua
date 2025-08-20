@@ -427,23 +427,20 @@ function ITU_IKAN.cleanup()
     
     -- Disconnect all connections
     for name, connection in pairs(ITU_IKAN.connections) do
-        if connection then
-            connection:Disconnect()
+        if connection and connection.Disconnect then
+            pcall(function() connection:Disconnect() end)
         end
     end
     ITU_IKAN.connections = {}
     
     -- Remove float body
     if ITU_IKAN.floatBody then
-        ITU_IKAN.floatBody:Destroy()
+        pcall(function() ITU_IKAN.floatBody:Destroy() end)
         ITU_IKAN.floatBody = nil
     end
     
-    -- Destroy UI
-    if ITU_IKAN.Window then
-        ITU_IKAN.Window:Destroy()
-        ITU_IKAN.Window = nil
-    end
+    -- Clear UI reference (don't destroy Rayfield window)
+    ITU_IKAN.Window = nil
     
     ITU_IKAN.loaded = false
     print("✅ ITU IKAN cleaned up")

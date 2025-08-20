@@ -14,8 +14,23 @@ end
 local REPO_URL = "https://raw.githubusercontent.com/yohansevta/itu_ikan/main"
 
 -- Loading methods
-local function method1_Standalone()
-    print("🔄 Method 1: Loading standalone version...")
+local function method1_Simple()
+    print("🔄 Method 1: Loading simple version (most reliable)...")
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(REPO_URL .. "/simple.lua"))()
+    end)
+    
+    if success then
+        print("✅ Simple version loaded successfully!")
+        return true
+    else
+        warn("❌ Simple loading failed:", result)
+        return false
+    end
+end
+
+local function method2_Standalone()
+    print("🔄 Method 2: Loading standalone version...")
     local success, result = pcall(function()
         return loadstring(game:HttpGet(REPO_URL .. "/standalone.lua"))()
     end)
@@ -29,8 +44,8 @@ local function method1_Standalone()
     end
 end
 
-local function method2_Original()
-    print("🔄 Method 2: Loading original fishit.lua...")
+local function method3_Original()
+    print("🔄 Method 3: Loading original fishit.lua...")
     local success, result = pcall(function()
         return loadstring(game:HttpGet(REPO_URL .. "/fishit.lua"))()
     end)
@@ -44,8 +59,8 @@ local function method2_Original()
     end
 end
 
-local function method3_BasicUI()
-    print("🔄 Method 3: Loading basic UI version...")
+local function method4_BasicUI()
+    print("🔄 Method 4: Loading basic UI version...")
     local success, result = pcall(function()
         -- Load Rayfield
         local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -64,12 +79,12 @@ local function method3_BasicUI()
         ITU_IKAN.Window = Rayfield:CreateWindow({
             Name = "🎣 ITU IKAN FISHING BOT",
             LoadingTitle = "ITU IKAN Loading...",
-            LoadingSubtitle = "by YohanSevta - Basic Version",
+            LoadingSubtitle = "by YohanSevta - Emergency Fallback",
             Theme = "Ocean"
         })
         
         -- Basic tab
-        local Tab = ITU_IKAN.Window:CreateTab("🎣 Auto Fishing")
+        local Tab = ITU_IKAN.Window:CreateTab("🎣 Emergency Mode")
         
         Tab:CreateToggle({
             Name = "Enable Auto Fishing",
@@ -85,32 +100,35 @@ local function method3_BasicUI()
             Callback = function()
                 Rayfield:Notify({
                     Title = "ITU IKAN",
-                    Content = "Basic UI is working!",
+                    Content = "Emergency UI is working!",
                     Duration = 3
                 })
             end,
         })
         
+        Tab:CreateLabel("This is emergency fallback mode.\nTry reloading for full features.")
+        
         -- Store globally
         _G.ITU_IKAN = ITU_IKAN
         
-        print("✅ Basic UI version loaded!")
+        print("✅ Emergency UI version loaded!")
         return ITU_IKAN
     end)
     
     if success then
         return true
     else
-        warn("❌ Basic UI loading failed:", result)
+        warn("❌ Emergency UI loading failed:", result)
         return false
     end
 end
 
 -- Try loading methods in order
 local loadingMethods = {
-    {name = "Standalone Version", func = method1_Standalone},
-    {name = "Original Script", func = method2_Original},
-    {name = "Basic UI Fallback", func = method3_BasicUI}
+    {name = "Simple Version (Most Reliable)", func = method1_Simple},
+    {name = "Standalone Version", func = method2_Standalone},
+    {name = "Original Script", func = method3_Original},
+    {name = "Emergency UI Fallback", func = method4_BasicUI}
 }
 
 local loaded = false
@@ -133,8 +151,8 @@ if loaded then
     print("=======================================")
     print("📘 Access via: _G.ITU_IKAN")
     print("🎮 UI should be visible")
-    print("🛑 Emergency stop: _G.ITU_IKAN.cleanup()")
-    print("🔄 Reload: _G.ITU_IKAN.reload()")
+    print("🛑 Emergency stop: _G.ITU_IKAN.cleanup() or _G.ITU_IKAN_SIMPLE.stopFishing()")
+    print("🔄 Reload: _G.ITU_IKAN.reload() or rerun loader")
 else
     print("\n❌ =======================================")
     print("    ALL LOADING METHODS FAILED!")
@@ -144,5 +162,7 @@ else
     print("   • Game compatibility")
     print("   • Executor capabilities")
     print("💡 Try running each method manually:")
+    print("   loadstring(game:HttpGet('" .. REPO_URL .. "/simple.lua'))()")
     print("   loadstring(game:HttpGet('" .. REPO_URL .. "/standalone.lua'))()")
+    print("   loadstring(game:HttpGet('" .. REPO_URL .. "/fishit.lua'))()")
 end
