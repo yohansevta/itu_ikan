@@ -4,6 +4,59 @@
 
 Created by **YohanSevta**
 
+[![GitHub release (latest by date- **YohanSevta**: Main developer
+- **Rayfield Team**: UI Library  
+- **Community**: Testing and feedback
+
+## 🔗 Links & Resources
+
+- **🏠 Repository**: https://github.com/yohansevta/itu_ikan
+- **📖 Setup Guide**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
+- **📋 Release Notes**: [RELEASE_NOTES.md](RELEASE_NOTES.md)
+- **💡 Examples**: [examples/example_usage.lua](examples/example_usage.lua)
+- **🧪 Testing**: [test_script.lua](test_script.lua)
+
+## 🌟 Quick Commands
+
+```lua
+-- ESSENTIAL COMMANDS
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/loader.lua"))()
+
+-- QUICK SETUPS  
+_G.ITU_IKAN_EXAMPLES.setupFullAutomation()  -- Full auto
+_G.ITU_IKAN_EXAMPLES.safeFishingMode()      -- Safe mode
+_G.ITU_IKAN_EXAMPLES.grindingMode()         -- Fast grinding
+
+-- QUICK CONTROLS
+_G.ITU_IKAN.StartFishing()                  -- Start
+_G.ITU_IKAN.StopFishing()                   -- Stop
+_G.ITU_IKAN.EmergencyStop()                 -- Emergency
+
+-- QUICK STATUS
+_G.ITU_IKAN_EXAMPLES.statusReport()         -- Full status
+_G.ITU_IKAN.GetStats()                      -- Quick stats
+```
+
+---
+
+**⚠️ Disclaimer**: This script is for educational purposes. Use responsibly and follow game rules.
+
+**🎣 Happy Fishing!** 🐟//img.shields.io/github/v/release/yohansevta/itu_ikan)](https://github.com/yohansevta/itu_ikan/releases)
+[![GitHub](https://img.shields.io/github/license/yohansevta/itu_ikan)](https://github.com/yohansevta/itu_ikan/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/yohansevta/itu_ikan)](https://github.com/yohansevta/itu_ikan/stargazers)
+
+## 🚀 Quick Start
+
+```lua
+-- One-line loader (Recommended)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/loader.lua"))()
+```
+
+## 📖 Documentation
+- **[Setup Guide](SETUP_GUIDE.md)** - Comprehensive usage guide
+- **[Release Notes](RELEASE_NOTES.md)** - What's new in v2.0
+- **[Examples](examples/example_usage.lua)** - Usage examples and automation
+
 ## ✨ Features
 
 ### 🎣 Auto Fishing System
@@ -54,17 +107,40 @@ Created by **YohanSevta**
 - **Performance Options**: Optimasi performa
 - **Auto-Save**: Simpan statistik otomatis
 
-## 🚀 Installation
+## 🚀 Installation & Usage
 
-### Method 1: Direct Execution
+### Method 1: One-Line Loader (Recommended)
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/src/main.lua"))()
+-- Copy paste ini ke Roblox executor
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/loader.lua"))()
 ```
 
-### Method 2: Manual Setup
-1. Download semua file dari repository
-2. Place files sesuai struktur folder
-3. Execute main.lua
+### Method 2: Quick Setup Examples
+```lua
+-- Load examples dan automation
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/examples/example_usage.lua"))()
+
+-- Full automation setup
+_G.ITU_IKAN_EXAMPLES.setupFullAutomation()
+
+-- Safe fishing mode
+_G.ITU_IKAN_EXAMPLES.safeFishingMode()
+
+-- Grinding mode (max speed)
+_G.ITU_IKAN_EXAMPLES.grindingMode()
+```
+
+### Method 3: Testing
+```lua
+-- Test semua modules
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/test_script.lua"))()
+```
+
+### Method 4: Direct Core Loading
+```lua
+-- Load main bot directly
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yohansevta/itu_ikan/main/src/main.lua"))()
+```
 
 ## 📁 File Structure
 
