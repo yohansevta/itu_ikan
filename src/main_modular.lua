@@ -1,9 +1,9 @@
 -- main_modular.lua
--- ITU IKAN FISHING BOT - Modularized dari fishit.lua dengan Rayfield UI
--- by YohanSevta - Mengambil SEMUA fitur dari fishit.lua original
+-- ITU IKAN FISHING BOT - Modular Version (Self-contained untuk GitHub loading)
+-- by YohanSevta - Semua fitur dari fishit.lua original dalam struktur modular
 
-print("🎣 ITU IKAN FISHING BOT - Modular Version (dari fishit.lua)")
-print("⚡ Loading semua fitur dari fishit.lua original...")
+print("🎣 ITU IKAN FISHING BOT - Modular Version Loading...")
+print("📁 Self-contained modular system dari fishit.lua...")
 
 -- Services (exact dari fishit.lua)
 local Players = game:GetService("Players")

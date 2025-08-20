@@ -22,12 +22,12 @@ local function attemptLoad(name, url, description)
     end
 end
 
--- Focused modular loading - ONLY modular system
+-- Focused modular loading - Self-contained version
 local loadingMethods = {
     {
-        name = "Modular Main",
-        url = "https://raw.githubusercontent.com/yohansevta/itu_ikan/main/src/main_modular.lua",
-        description = "Full modular system dengan semua modules dari fishit.lua"
+        name = "Self-contained Modular",
+        url = "https://raw.githubusercontent.com/yohansevta/itu_ikan/main/main_modular_fixed.lua",
+        description = "Self-contained modular system - All modules in one file"
     }
 }
 
@@ -36,18 +36,18 @@ local loaded = false
 local loadedScript = nil
 
 print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-print("📥 Loading: Modular Main System")
+print("📥 Loading: Self-contained Modular System")
 
-local success, result = attemptLoad("Modular Main", 
-    "https://raw.githubusercontent.com/yohansevta/itu_ikan/main/src/main_modular.lua",
-    "Full modular system dengan semua modules dari fishit.lua")
+local success, result = attemptLoad("Self-contained Modular", 
+    "https://raw.githubusercontent.com/yohansevta/itu_ikan/main/main_modular_fixed.lua",
+    "Self-contained modular system - All modules in one file")
 
 if success then
     loaded = true
     loadedScript = result
-    print("🎉 Successfully loaded: Modular System!")
+    print("🎉 Successfully loaded: Self-contained Modular System!")
 else
-    print("❌ Failed to load modular system")
+    print("❌ Failed to load self-contained modular system")
 end
 
 print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -88,11 +88,11 @@ else
     print("📡 Check: Koneksi internet dan GitHub access")
     print("🔄 Solution: Coba lagi dalam beberapa saat")
     print("")
-    print("🆘 MANUAL LOADING MODULAR SYSTEM:")
-    print("loadstring(game:HttpGet('https://raw.githubusercontent.com/yohansevta/itu_ikan/main/src/main_modular.lua'))()")
+    print("🆘 MANUAL LOADING SELF-CONTAINED MODULAR:")
+    print("loadstring(game:HttpGet('https://raw.githubusercontent.com/yohansevta/itu_ikan/main/main_modular_fixed.lua'))()")
     print("")
-    print("📁 Focus: ONLY MODULAR SYSTEM - No fallbacks")
-    print("🎯 Reason: Dedicated modular experience only")
+    print("📁 Focus: Self-contained modular system")
+    print("🎯 Reason: All modules embedded in one file for reliability")
 end
 
 return loadedScript
