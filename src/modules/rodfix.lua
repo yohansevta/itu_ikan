@@ -1,101 +1,38 @@
 -- rodfix.lua
--- Rod Orientation Fix Module
-
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-
-local LocalPlayer = Players.LocalPlayer
-local Helpers = require(script.Parent.Parent.utils.helpers)
+-- ITU IKAN Rod Fix Module (extracted dari fishit.lua original)
+-- Advanced rod orientation fixing untuk better fishing experience
 
 local RodFix = {}
-RodFix.__index = RodFix
 
--- Constructor
-function RodFix.new(settings)
-    local self = setmetatable({}, RodFix)
-    
-    self.settings = settings or {}
-    self.enabled = self.settings.enabled or true
-    self.continuousMode = self.settings.continuousMode or true
-    self.fixDuringCharging = self.settings.fixDuringCharging or true
-    self.fixInterval = self.settings.fixInterval or 0.05
-    
-    self.lastFixTime = 0
-    self.isCharging = false
-    self.chargingConnection = nil
-    self.characterConnection = nil
-    
-    self:Initialize()
-    
-    return self
-end
+-- Private variables
+local config = nil
+local remotes = nil
+local notify = nil
+local isEnabled = false
 
--- Initialize the rod fix system
-function RodFix:Initialize()
-    self:SetupCharacterEvents()
-    
-    -- Fix current tool if character already exists
-    if LocalPlayer.Character then
-        self:CheckCurrentTool()
-    end
-end
+-- RodFix state tracking (dari fishit.lua)
+local rodFixState = {
+    enabled = true,
+    lastFixTime = 0,
+    isCharging = false,
+    chargingConnection = nil,
+    monitorConnection = nil
+}
 
--- Setup character added/removed events
-function RodFix:SetupCharacterEvents()
-    -- Clean up existing connection
-    if self.characterConnection then
-        self.characterConnection:Disconnect()
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Monitor charging phase untuk fix yang lebih aktif (dari fishit.lua)
+local function monitorChargingPhase()
+    if rodFixState.chargingConnection then
+        rodFixState.chargingConnection:Disconnect()
     end
     
-    self.characterConnection = LocalPlayer.CharacterAdded:Connect(function(character)
-        self:OnCharacterAdded(character)
-    end)
-    
-    -- Setup for current character if exists
-    if LocalPlayer.Character then
-        self:OnCharacterAdded(LocalPlayer.Character)
-    end
-end
-
--- Handle character added
-function RodFix:OnCharacterAdded(character)
-    -- Tool added event
-    character.ChildAdded:Connect(function(child)
-        if child:IsA("Tool") then
-            task.wait(0.1) -- Wait for tool to fully load
-            self:FixRodOrientation()
-            self:StartChargingMonitor()
-        end
-    end)
-    
-    -- Tool removed event
-    character.ChildRemoved:Connect(function(child)
-        if child:IsA("Tool") then
-            self:StopChargingMonitor()
-        end
-    end)
-    
-    -- Check if rod is already equipped
-    self:CheckCurrentTool()
-end
-
--- Check current equipped tool
-function RodFix:CheckCurrentTool()
-    if Helpers.IsRodEquipped() then
-        self:FixRodOrientation()
-        self:StartChargingMonitor()
-    end
-end
-
--- Start monitoring charging phase
-function RodFix:StartChargingMonitor()
-    if not self.enabled or not self.fixDuringCharging then return end
-    
-    self:StopChargingMonitor() -- Clean up existing connection
-    
-    -- Monitor every frame during charging for real-time fixes
-    self.chargingConnection = RunService.Heartbeat:Connect(function()
-        if not self.enabled then return end
+    -- Monitor setiap frame selama charging untuk fix real-time
+    rodFixState.chargingConnection = RunService.Heartbeat:Connect(function()
+        if not rodFixState.enabled then return end
         
         local character = LocalPlayer.Character
         if not character then return end
@@ -103,7 +40,7 @@ function RodFix:StartChargingMonitor()
         local humanoid = character:FindFirstChild("Humanoid")
         if not humanoid then return end
         
-        -- Detect charging animation
+        -- Deteksi charging animation
         local isCurrentlyCharging = false
         for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do
             local animName = track.Name:lower()
@@ -113,37 +50,28 @@ function RodFix:StartChargingMonitor()
             end
         end
         
-        -- If in charging phase, apply fix more frequently
+        -- Jika dalam phase charging, lakukan fix lebih sering
         if isCurrentlyCharging then
-            self.isCharging = true
-            self:FixRodOrientation() -- Fix every frame during charging
+            rodFixState.isCharging = true
+            fixRodOrientation() -- Fix setiap frame selama charging
         else
-            if self.isCharging then
-                -- After charging ends, do final fix
-                self.isCharging = false
+            if rodFixState.isCharging then
+                -- Setelah charging selesai, lakukan fix final
+                rodFixState.isCharging = false
                 task.wait(0.1)
-                self:FixRodOrientation()
+                fixRodOrientation()
             end
         end
     end)
 end
 
--- Stop charging monitor
-function RodFix:StopChargingMonitor()
-    if self.chargingConnection then
-        self.chargingConnection:Disconnect()
-        self.chargingConnection = nil
-    end
-    self.isCharging = false
-end
-
--- Main rod orientation fix function
-function RodFix:FixRodOrientation()
-    if not self.enabled then return end
+-- Main rod orientation fix function (dari fishit.lua)
+local function fixRodOrientation()
+    if not rodFixState.enabled then return end
     
     local now = tick()
-    if now - self.lastFixTime < self.fixInterval then return end -- Throttle fixes
-    self.lastFixTime = now
+    if now - rodFixState.lastFixTime < 0.05 then return end -- Faster throttle for charging phase
+    rodFixState.lastFixTime = now
     
     local character = LocalPlayer.Character
     if not character then return end
@@ -151,38 +79,38 @@ function RodFix:FixRodOrientation()
     local equippedTool = character:FindFirstChildOfClass("Tool")
     if not equippedTool then return end
     
-    -- Ensure this is a fishing rod
+    -- Pastikan ini fishing rod
     local isRod = equippedTool.Name:lower():find("rod") or 
                   equippedTool:FindFirstChild("Rod") or
                   equippedTool:FindFirstChild("Handle")
     if not isRod then return end
     
-    -- Method 1: Fix Motor6D during charging phase (most effective)
+    -- Method 1: Fix Motor6D during charging phase (paling efektif)
     local rightArm = character:FindFirstChild("Right Arm")
     if rightArm then
         local rightGrip = rightArm:FindFirstChild("RightGrip")
         if rightGrip and rightGrip:IsA("Motor6D") then
-            -- Normal orientation for rod facing forward during charging
-            -- C0 controls position/orientation at right arm
-            -- C1 controls position/orientation at handle
+            -- Orientasi normal untuk rod menghadap depan SELAMA charging
+            -- C0 mengontrol posisi/orientasi di right arm
+            -- C1 mengontrol posisi/orientasi di handle
             rightGrip.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
             rightGrip.C1 = CFrame.new(0, 0, 0) * CFrame.Angles(0, 0, 0)
             return
         end
     end
     
-    -- Method 2: Fix Tool Grip Value (for tools with custom grip)
+    -- Method 2: Fix Tool Grip Value (untuk tools dengan custom grip)
     local handle = equippedTool:FindFirstChild("Handle")
     if handle then
-        -- Fix existing grip value
+        -- Fix grip value yang ada
         local toolGrip = equippedTool:FindFirstChild("Grip")
         if toolGrip and toolGrip:IsA("CFrameValue") then
-            -- Grip value for rod facing forward
+            -- Grip value untuk rod menghadap depan
             toolGrip.Value = CFrame.new(0, -1.5, 0) * CFrame.Angles(math.rad(-90), 0, 0)
             return
         end
         
-        -- If no grip value exists, create one
+        -- Jika tidak ada grip value, buat yang baru
         if not toolGrip then
             toolGrip = Instance.new("CFrameValue")
             toolGrip.Name = "Grip"
@@ -190,75 +118,166 @@ function RodFix:FixRodOrientation()
             toolGrip.Parent = equippedTool
         end
     end
-end
-
--- Force fix rod orientation
-function RodFix:ForceFix()
-    self.lastFixTime = 0 -- Reset throttle
-    self:FixRodOrientation()
-end
-
--- Enable rod fix
-function RodFix:Enable()
-    self.enabled = true
-    self:ForceFix()
-    if Helpers.IsRodEquipped() then
-        self:StartChargingMonitor()
-    end
-    Helpers.Notify("Rod Fix", "🎣 Rod orientation fix enabled")
-end
-
--- Disable rod fix
-function RodFix:Disable()
-    self.enabled = false
-    self:StopChargingMonitor()
-    Helpers.Notify("Rod Fix", "🎣 Rod orientation fix disabled")
-end
-
--- Toggle rod fix
-function RodFix:Toggle()
-    if self.enabled then
-        self:Disable()
-    else
-        self:Enable()
-    end
-    return self.enabled
-end
-
--- Update settings
-function RodFix:UpdateSettings(newSettings)
-    self.settings = Helpers.MergeTables(self.settings, newSettings)
-    self.enabled = self.settings.enabled
-    self.continuousMode = self.settings.continuousMode
-    self.fixDuringCharging = self.settings.fixDuringCharging
-    self.fixInterval = self.settings.fixInterval
     
-    if self.enabled and Helpers.IsRodEquipped() then
-        self:StartChargingMonitor()
-    elseif not self.enabled then
-        self:StopChargingMonitor()
+    -- Method 3: Direct CFrame manipulation for R6/R15 compatibility
+    if rightArm then
+        local weld = rightArm:FindFirstChild("Weld") 
+        if weld then
+            weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+            weld.C1 = CFrame.new(0, 0, 0)
+        end
     end
 end
 
--- Get status
-function RodFix:GetStatus()
+-- Setup tool monitoring (dari fishit.lua)
+local function setupToolMonitoring()
+    -- Monitor when character gets tools
+    local function onCharacterAdded(character)
+        character.ChildAdded:Connect(function(child)
+            if child:IsA("Tool") then
+                task.wait(0.1) -- Wait for tool to fully load
+                fixRodOrientation()
+                monitorChargingPhase() -- Start monitoring charging phase
+            end
+        end)
+        
+        character.ChildRemoved:Connect(function(child)
+            if child:IsA("Tool") and rodFixState.chargingConnection then
+                rodFixState.chargingConnection:Disconnect()
+                rodFixState.chargingConnection = nil
+            end
+        end)
+    end
+    
+    -- Connect to current and future characters
+    if LocalPlayer.Character then
+        onCharacterAdded(LocalPlayer.Character)
+    end
+    
+    LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
+    
+    -- Check if rod is already equipped
+    if LocalPlayer.Character then
+        local currentTool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
+        if currentTool then
+            fixRodOrientation()
+            monitorChargingPhase()
+        end
+    end
+end
+
+-- Continuous rod monitoring
+local function startContinuousMonitoring()
+    if rodFixState.monitorConnection then
+        rodFixState.monitorConnection:Disconnect()
+    end
+    
+    rodFixState.monitorConnection = RunService.Heartbeat:Connect(function()
+        if not rodFixState.enabled then return end
+        
+        -- Check every few frames untuk efficiency
+        if tick() - rodFixState.lastFixTime > 0.1 then
+            fixRodOrientation()
+        end
+    end)
+end
+
+-- Module functions
+function RodFix.init(gameConfig, gameRemotes, notifyFunc)
+    config = gameConfig
+    remotes = gameRemotes
+    notify = notifyFunc
+    
+    -- Setup tool monitoring
+    setupToolMonitoring()
+    
+    print("✅ RodFix module initialized")
+    print("   - Charging phase monitoring: enabled")
+    print("   - Real-time orientation fixing: enabled")
+    print("   - Multi-method rod fixing: enabled")
+end
+
+function RodFix.enable()
+    if isEnabled then
+        if notify then notify("Rod Fix", "⚠️ Already enabled!") end
+        return
+    end
+    
+    isEnabled = true
+    rodFixState.enabled = true
+    config.rodFixEnabled = true
+    
+    -- Start continuous monitoring
+    startContinuousMonitoring()
+    
+    if notify then notify("Rod Fix", "🔧 Rod orientation fix enabled!") end
+    
+    -- Immediate fix if rod is equipped
+    fixRodOrientation()
+end
+
+function RodFix.disable()
+    isEnabled = false
+    rodFixState.enabled = false
+    config.rodFixEnabled = false
+    
+    -- Stop all monitoring connections
+    if rodFixState.chargingConnection then
+        rodFixState.chargingConnection:Disconnect()
+        rodFixState.chargingConnection = nil
+    end
+    
+    if rodFixState.monitorConnection then
+        rodFixState.monitorConnection:Disconnect()
+        rodFixState.monitorConnection = nil
+    end
+    
+    if notify then notify("Rod Fix", "🔧 Rod orientation fix disabled") end
+end
+
+function RodFix.toggle()
+    if isEnabled then
+        RodFix.disable()
+    else
+        RodFix.enable()
+    end
+end
+
+function RodFix.forcefix()
+    -- Force immediate rod fix
+    fixRodOrientation()
+    if notify then notify("Rod Fix", "🔧 Force fix applied!") end
+end
+
+function RodFix.isEnabled()
+    return isEnabled
+end
+
+function RodFix.getStatus()
     return {
-        enabled = self.enabled,
-        isCharging = self.isCharging,
-        hasRodEquipped = Helpers.IsRodEquipped(),
-        lastFixTime = self.lastFixTime,
-        settings = self.settings
+        enabled = isEnabled,
+        isCharging = rodFixState.isCharging,
+        lastFixTime = rodFixState.lastFixTime,
+        hasChargingConnection = rodFixState.chargingConnection ~= nil,
+        hasMonitorConnection = rodFixState.monitorConnection ~= nil
     }
 end
 
--- Cleanup
-function RodFix:Destroy()
-    self:StopChargingMonitor()
-    if self.characterConnection then
-        self.characterConnection:Disconnect()
+function RodFix.cleanup()
+    RodFix.disable()
+    
+    -- Clean up all connections
+    if rodFixState.chargingConnection then
+        rodFixState.chargingConnection:Disconnect()
+        rodFixState.chargingConnection = nil
     end
     
-    setmetatable(self, nil)
+    if rodFixState.monitorConnection then
+        rodFixState.monitorConnection:Disconnect()
+        rodFixState.monitorConnection = nil
+    end
+    
+    print("🧹 RodFix module cleaned up")
 end
 
 return RodFix
